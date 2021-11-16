@@ -1,0 +1,1222 @@
+-- This is a database created for a company which designs and develops interior and exterior landscapes for hotels, restaurants, condominiums, and large private estates.
+-- In their designs, they use a mixture of commonly available plants, flowers and shrubs, and imported rare and exotic plants, pottery, and other materials.
+-- 
+
+				
+-- Create database [landscapeXYZ]
+Print 'Create database [landscapeXYZ]'
+CREATE DATABASE landscapeXYZ;
+GO
+USE landscapeXYZ;
+GO
+
+-- Create table [dbo].[CLIENT]
+Print 'Create table [dbo].[CLIENT]'
+CREATE TABLE [dbo].[CLIENT](
+  [clientName] [varchar](50)  NOT NULL,
+  [cID] [char](10)  NOT NULL,
+  [streetNum] [varchar](7)  NOT NULL,
+  [streetName] [varchar](75)  NOT NULL,
+  [city] [varchar](30)  NOT NULL,
+  [stateName] [char](2)  NOT NULL,
+  [zipCode] [char](5)  NOT NULL,
+  CONSTRAINT [PK_CLIENT] PRIMARY KEY NONCLUSTERED ([cID]),
+);
+GO
+
+ALTER TABLE [dbo].[CLIENT]
+  ADD
+  CONSTRAINT [CK-STATENAME] 
+  CHECK
+  (stateName LIKE '[A-Z][A-Z]')
+GO
+
+ALTER TABLE [dbo].[CLIENT]
+  ADD
+  CONSTRAINT [CK_CLIENT_NAME] 
+  CHECK
+  (clientName NOT LIKE '%[^A-Z0-9 -]%')
+GO
+
+ALTER TABLE [dbo].[CLIENT]
+  ADD
+  CONSTRAINT [CK_CLIENT_ZIPCODE] 
+  CHECK
+  (zipCode LIKE '[0-9][0-9][0-9][0-9][0-9]')
+GO
+-- Create table [dbo].[PROJECT]
+Print 'Create table [dbo].[PROJECT]'
+CREATE TABLE [dbo].[PROJECT](
+  [projID] [nchar](10)  NOT NULL,
+  [projectName] [varchar](30)  NOT NULL,
+  [pAddress] [varchar](250)  NOT NULL,
+  [cID] [char](10)  NOT NULL,
+  [contactID] [char](10)  NULL,
+  CONSTRAINT [PK_Table_1] PRIMARY KEY NONCLUSTERED ([projID]),
+);
+GO
+-- Create table [dbo].[PROJECT CONTACT]
+Print 'Create table [dbo].[PROJECT CONTACT]'
+CREATE TABLE [dbo].[PROJECT CONTACT](
+  [contactID] [char](10)  NOT NULL,
+  [fName] [varchar](50)  NOT NULL,
+  [lName] [varchar](50)  NOT NULL,
+  [mName] [varchar](50)  NULL,
+  [cPhone] [char](10)  NOT NULL,
+  [cID] [char](10)  NULL,
+  CONSTRAINT [PK_PROJECT_CONTACT] PRIMARY KEY NONCLUSTERED ([contactID]),
+);
+GO
+
+ALTER TABLE [dbo].[PROJECT CONTACT]
+  ADD
+  CONSTRAINT [CK_PROJECT CONTACT_NAME] 
+  CHECK
+  (fName NOT LIKE '%[^A-Z]%'
+AND lName NOT LIKE '%[^A-Z]%'
+)
+GO
+
+ALTER TABLE [dbo].[PROJECT CONTACT]
+  ADD
+  CONSTRAINT [CK_PROJECT CONTACT_MNAME] 
+  CHECK
+  (mName LIKE '[A-Z].')
+GO
+
+ALTER TABLE [dbo].[PROJECT CONTACT]
+  ADD
+  CONSTRAINT [CK_PROJECT CONTACT_PHONE] 
+  CHECK
+  (cPhone LIKE '[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]')
+GO
+-- Create table [dbo].[DESIGN BID]
+Print 'Create table [dbo].[DESIGN BID]'
+CREATE TABLE [dbo].[DESIGN BID](
+  [bidID] [char](10)  NOT NULL,
+  [bidDate] [date]  NOT NULL,
+  [estBeginDate] [date]  NOT NULL,
+  [estComplDate] [date]  NOT NULL,
+  [acceptedORrejected] [char](1)  NULL,
+  [projID] [nchar](10)  NOT NULL,
+  CONSTRAINT [PK_DESIGN BID] PRIMARY KEY NONCLUSTERED ([bidID]),
+);
+GO
+
+ALTER TABLE [dbo].[DESIGN BID]
+  ADD
+  CONSTRAINT [CK_DESIGN BID_DATE] 
+  CHECK
+  (bidDate < estBeginDate
+AND estBeginDate  < estComplDate)
+GO
+-- Create table [dbo].[EMP-BID-ROLE]
+Print 'Create table [dbo].[EMP-BID-ROLE]'
+CREATE TABLE [dbo].[EMP-BID-ROLE](
+  [role] [varchar](15)  NOT NULL,
+  [bidID] [char](10)  NOT NULL,
+  [empID] [char](10)  NOT NULL,
+  CONSTRAINT [PK_EMP-BID-ROLE] PRIMARY KEY NONCLUSTERED ([empID], [bidID]),
+);
+GO
+-- Create table [dbo].[EMPLOYEE]
+Print 'Create table [dbo].[EMPLOYEE]'
+CREATE TABLE [dbo].[EMPLOYEE](
+  [empID] [char](10)  NOT NULL,
+  [empfName] [varchar](30)  NOT NULL,
+  [empLName] [varchar](30)  NOT NULL,
+  [ePhone] [char](10)  NOT NULL,
+  [empMName] [varchar](30)  NULL,
+  CONSTRAINT [PK_EMPLOYEE] PRIMARY KEY NONCLUSTERED ([empID]),
+);
+GO
+
+ALTER TABLE [dbo].[EMPLOYEE]
+  ADD
+  CONSTRAINT [CK_EMPLOYEE_FNAME] 
+  CHECK
+  (empfName  NOT LIKE '%[^A-Z]%' )
+GO
+
+ALTER TABLE [dbo].[EMPLOYEE]
+  ADD
+  CONSTRAINT [CK_EMPLOYEE_LNAME] 
+  CHECK
+  (empLName NOT LIKE '%[^A-Z]%')
+GO
+
+ALTER TABLE [dbo].[EMPLOYEE]
+  ADD
+  CONSTRAINT [CK_EMPLOYEE_PHONE] 
+  CHECK
+  (ePhone LIKE '[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]')
+GO
+
+ALTER TABLE [dbo].[EMPLOYEE]
+  ADD
+  CONSTRAINT [CK_EMPLOYEE_MNAME] 
+  CHECK
+  (empMName LIKE '[A-Z].')
+GO
+-- Create table [dbo].[BID-LABOR]
+Print 'Create table [dbo].[BID-LABOR]'
+CREATE TABLE [dbo].[BID-LABOR](
+  [hoursOnBid] [int]  NOT NULL,
+  [chargePerHourOnBid] [smallmoney]  NOT NULL,
+  [bidID] [char](10)  NOT NULL,
+  [laborCode] [char](10)  NOT NULL,
+  CONSTRAINT [PK_BID-LABOR] PRIMARY KEY NONCLUSTERED ([laborCode], [bidID]),
+);
+GO
+
+ALTER TABLE [dbo].[BID-LABOR]
+  ADD
+  CONSTRAINT [CK_BID-LABOR_CHARGE] 
+  CHECK
+  (chargePerHourOnBid >= 0)
+GO
+
+ALTER TABLE [dbo].[BID-LABOR]
+  ADD
+  CONSTRAINT [CK_BID-LABOR_HOURS] 
+  CHECK
+  (hoursOnBid >= 0)
+GO
+-- Create table [dbo].[LABOR-AND-CHARGE]
+Print 'Create table [dbo].[LABOR-AND-CHARGE]'
+CREATE TABLE [dbo].[LABOR-AND-CHARGE](
+  [laborCode] [char](10)  NOT NULL,
+  [laborDescription] [varchar](50)  NOT NULL,
+  [listedChargePerHour] [smallmoney]  NOT NULL,
+  CONSTRAINT [PK_LABOR-AND-CHARGE] PRIMARY KEY NONCLUSTERED ([laborCode]),
+);
+GO
+
+ALTER TABLE [dbo].[LABOR-AND-CHARGE]
+  ADD
+  CONSTRAINT [CK_LABOR-AND-CHARGE] 
+  CHECK
+  (listedChargePerHour >= 0)
+GO
+-- Create table [dbo].[BID-MATERIALS]
+Print 'Create table [dbo].[BID-MATERIALS]'
+CREATE TABLE [dbo].[BID-MATERIALS](
+  [QtyOnBid] [int]  NOT NULL,
+  [UnitPriceForBid] [smallmoney]  NOT NULL,
+  [materialID] [char](10)  NOT NULL,
+  [bidID] [char](10)  NOT NULL,
+  CONSTRAINT [PK_BID-MATERIALS] PRIMARY KEY NONCLUSTERED ([materialID], [bidID]),
+);
+GO
+
+ALTER TABLE [dbo].[BID-MATERIALS]
+  ADD
+  CONSTRAINT [CK_BID-MATERIALS_QTYONBID] 
+  CHECK
+  (QtyOnBid >= 1)
+GO
+
+ALTER TABLE [dbo].[BID-MATERIALS]
+  ADD
+  CONSTRAINT [CK_BID-MATERIALS_UNITPRICEOFRBID] 
+  CHECK
+  (UnitPriceForBid >= 0)
+GO
+-- Create table [dbo].[MATERIAL]
+Print 'Create table [dbo].[MATERIAL]'
+CREATE TABLE [dbo].[MATERIAL](
+  [materialID] [char](10)  NOT NULL,
+  [description] [varchar](50)  NOT NULL,
+  [typeOfMaterial] [char](2)  NOT NULL,
+  CONSTRAINT [PK_MATERIAL] PRIMARY KEY NONCLUSTERED ([materialID]),
+);
+GO
+-- Create table [dbo].[POTTERY]
+Print 'Create table [dbo].[POTTERY]'
+CREATE TABLE [dbo].[POTTERY](
+  [size] [int]  NOT NULL,
+  [sizeUnits] [varchar](10)  NOT NULL,
+  [materialID] [char](10)  NOT NULL,
+  [unitPrice] [smallmoney]  NOT NULL,
+  CONSTRAINT [PK_POTTERY] PRIMARY KEY NONCLUSTERED ([materialID]),
+);
+GO
+
+ALTER TABLE [dbo].[POTTERY]
+  ADD
+  CONSTRAINT [CK_POTTERY_UNITPRICE] 
+  CHECK
+  (unitPrice > = 0)
+GO
+-- Create table [dbo].[PLANT]
+Print 'Create table [dbo].[PLANT]'
+CREATE TABLE [dbo].[PLANT](
+  [size] [int]  NOT NULL,
+  [sizeUnits] [varchar](10)  NOT NULL,
+  [materialID] [char](10)  NOT NULL,
+  [unitPrice] [smallmoney]  NOT NULL,
+  CONSTRAINT [PK_PLANT] PRIMARY KEY NONCLUSTERED ([materialID]),
+);
+GO
+
+ALTER TABLE [dbo].[PLANT]
+  ADD
+  CONSTRAINT [CK_PLANT_UNITPRICE] 
+  CHECK
+  (unitPrice > = 0)
+GO
+-- Create table [dbo].[OTHER MATERIAL]
+Print 'Create table [dbo].[OTHER MATERIAL]'
+CREATE TABLE [dbo].[OTHER MATERIAL](
+  [size] [int]  NOT NULL,
+  [sizeUnits] [varchar](10)  NOT NULL,
+  [materialID] [char](10)  NOT NULL,
+  [unitPrice] [smallmoney]  NOT NULL,
+  CONSTRAINT [PK_OTHER MATERIAL] PRIMARY KEY NONCLUSTERED ([materialID]),
+);
+GO
+
+ALTER TABLE [dbo].[OTHER MATERIAL]
+  ADD
+  CONSTRAINT [CK_OTHER MATERIAL_UNITPRICE] 
+  CHECK
+  (unitPrice > = 0)
+GO
+-- Create table [dbo].[REJECTED]
+Print 'Create table [dbo].[REJECTED]'
+CREATE TABLE [dbo].[REJECTED](
+  [rejectedDate] [date]  NOT NULL,
+  [invitedRevision] [bit]  NOT NULL,
+  [bidID] [char](10)  NOT NULL,
+  CONSTRAINT [PK_REJECTED] PRIMARY KEY NONCLUSTERED ([bidID]),
+);
+GO
+-- Create table [dbo].[APPROVED]
+Print 'Create table [dbo].[APPROVED]'
+CREATE TABLE [dbo].[APPROVED](
+  [acceptedDate] [date]  NOT NULL,
+  [tentativeStartDate] [date]  NOT NULL,
+  [approvedByName] [varchar](30)  NOT NULL,
+  [bidID] [char](10)  NOT NULL,
+  CONSTRAINT [PK_APPROVED] PRIMARY KEY NONCLUSTERED ([bidID]),
+);
+GO
+-- Create table [dbo].[TOOL]
+Print 'Create table [dbo].[TOOL]'
+CREATE TABLE [dbo].[TOOL](
+  [toolCode] [char](10)  NOT NULL,
+  [toolName] [varchar](30)  NOT NULL,
+  [qtyInStock] [int]  NOT NULL,
+  CONSTRAINT [PK_TOOL] PRIMARY KEY NONCLUSTERED ([toolCode]),
+);
+GO
+
+ALTER TABLE [dbo].[TOOL]
+  ADD
+  CONSTRAINT [CK_TOOL_QTY] 
+  CHECK
+  (qtyInStock>=0)
+GO
+-- Create table [dbo].[PP MATERIAL SCHEDULE]
+Print 'Create table [dbo].[PP MATERIAL SCHEDULE]'
+CREATE TABLE [dbo].[PP MATERIAL SCHEDULE](
+  [materialScheduleID] [char](10)  NOT NULL,
+  [qtyScheduled] [int]  NOT NULL,
+  [dateTimeDelivery] [datetime]  NOT NULL,
+  [dateInstall] [date]  NOT NULL,
+  [materialID] [char](10)  NOT NULL,
+  [pPlanVersion] [char](3)  NULL,
+  [bidID] [char](10)  NULL,
+  CONSTRAINT [PK_PP MATERIAL SCHEDULE] PRIMARY KEY NONCLUSTERED ([materialScheduleID]),
+);
+GO
+-- Create table [dbo].[PROJECT TEAM MEMBER]
+Print 'Create table [dbo].[PROJECT TEAM MEMBER]'
+CREATE TABLE [dbo].[PROJECT TEAM MEMBER](
+  [projTeamAssignID] [char](10)  NOT NULL,
+  [laborCode] [char](10)  NULL,
+  [empID] [char](10)  NULL,
+  [pPlanVersion] [char](3)  NULL,
+  [bidID] [char](10)  NULL,
+  CONSTRAINT [PK_PROJECT TEAM MEMBER] PRIMARY KEY NONCLUSTERED ([projTeamAssignID]),
+);
+GO
+-- Create table [dbo].[PROJECT TASKS]
+Print 'Create table [dbo].[PROJECT TASKS]'
+CREATE TABLE [dbo].[PROJECT TASKS](
+  [taskID] [char](10)  NOT NULL,
+  [hoursCharged] [int]  NOT NULL,
+  [taskDescription] [varchar](200)  NOT NULL,
+  [dateByCompletion] [datetime]  NOT NULL,
+  [dateOfCompletion] [datetime]  NOT NULL,
+  CONSTRAINT [PK_PROJECT TASKS] PRIMARY KEY NONCLUSTERED ([taskID]),
+);
+GO
+-- Create table [dbo].[EMPLOYEE-PROJECT-TASK]
+Print 'Create table [dbo].[EMPLOYEE-PROJECT-TASK]'
+CREATE TABLE [dbo].[EMPLOYEE-PROJECT-TASK](
+  [taskID] [char](10)  NOT NULL,
+  [projTeamAssignID] [char](10)  NOT NULL,
+  CONSTRAINT [PK_EMPLOYEE-PROJECT-TASK] PRIMARY KEY NONCLUSTERED ([taskID], [projTeamAssignID]),
+);
+GO
+-- Create table [dbo].[EMPLOYEE-PROJECT-TASK-PERFORMED]
+Print 'Create table [dbo].[EMPLOYEE-PROJECT-TASK-PERFORMED]'
+CREATE TABLE [dbo].[EMPLOYEE-PROJECT-TASK-PERFORMED](
+  [workID] [char](10)  NOT NULL,
+  [date] [date]  NOT NULL,
+  [taskID] [char](10)  NULL,
+  [projTeamAssignID] [char](10)  NULL,
+  CONSTRAINT [PK_EMPLOYEE-PROJECT-TASK-PERFORMED] PRIMARY KEY NONCLUSTERED ([workID]),
+);
+GO
+-- Create table [dbo].[MATERIAL-USED]
+Print 'Create table [dbo].[MATERIAL-USED]'
+CREATE TABLE [dbo].[MATERIAL-USED](
+  [materialUsedID] [char](10)  NOT NULL,
+  [date] [date]  NOT NULL,
+  [qty] [nchar](10)  NULL,
+  [materialScheduleID] [char](10)  NULL,
+  CONSTRAINT [PK_MATERIAL-USED] PRIMARY KEY NONCLUSTERED ([materialUsedID]),
+);
+GO
+-- Create table [dbo].[DESIGNER-TASK]
+Print 'Create table [dbo].[DESIGNER-TASK]'
+CREATE TABLE [dbo].[DESIGNER-TASK](
+  [designBudgetID] [char](10)  NOT NULL,
+  [designTaskID] [char](10)  NOT NULL,
+  CONSTRAINT [PK_DESIGNER-TASK] PRIMARY KEY NONCLUSTERED ([designTaskID], [designBudgetID]),
+);
+GO
+-- Create table [dbo].[DESIGN TASKS]
+Print 'Create table [dbo].[DESIGN TASKS]'
+CREATE TABLE [dbo].[DESIGN TASKS](
+  [designTaskID] [char](10)  NOT NULL,
+  [hoursCharged] [int]  NULL,
+  [taskDescription] [varchar](200)  NULL,
+  [dateByCompletion] [datetime]  NULL,
+  [dateOfCompletion] [datetime]  NULL,
+  CONSTRAINT [PK_DESIGN TASKS] PRIMARY KEY NONCLUSTERED ([designTaskID]),
+);
+GO
+-- Create table [dbo].[DESIGNER-TASK-PERFORMED]
+Print 'Create table [dbo].[DESIGNER-TASK-PERFORMED]'
+CREATE TABLE [dbo].[DESIGNER-TASK-PERFORMED](
+  [workID] [char](10)  NOT NULL,
+  [date] [date]  NOT NULL,
+  [designTaskID] [char](10)  NULL,
+  [designBudgetID] [char](10)  NULL,
+  CONSTRAINT [PK_DESIGNER-TASK-PERFORMED] PRIMARY KEY NONCLUSTERED ([workID]),
+);
+GO
+-- Create table [dbo].[DESIGN BUDGET]
+Print 'Create table [dbo].[DESIGN BUDGET]'
+CREATE TABLE [dbo].[DESIGN BUDGET](
+  [designBudgetID] [char](10)  NOT NULL,
+  [projID] [nchar](10)  NULL,
+  [empID] [char](10)  NULL,
+  [laborCode] [char](10)  NULL,
+  [estBidAmout] [smallmoney]  NOT NULL,
+  CONSTRAINT [PK_DESIGN BUDGET] PRIMARY KEY NONCLUSTERED ([designBudgetID]),
+);
+GO
+
+ALTER TABLE [dbo].[DESIGN BUDGET]
+  ADD
+  CONSTRAINT [CK_DESIGN BUDGET_estBidAmount] 
+  CHECK
+  (estBidAmout >= 0)
+GO
+-- Create table [dbo].[PP TOOL REQUIREMENTS]
+Print 'Create table [dbo].[PP TOOL REQUIREMENTS]'
+CREATE TABLE [dbo].[PP TOOL REQUIREMENTS](
+  [ppMatID] [char](10)  NOT NULL,
+  [qtyDelivered] [int]  NOT NULL,
+  [fromDate] [date]  NOT NULL,
+  [toDate] [date]  NOT NULL,
+  [toolCode] [char](10)  NULL,
+  [pPlanVersion] [char](3)  NULL,
+  [bidID] [char](10)  NULL,
+  CONSTRAINT [PK_PP TOOL REQUIREMENTS] PRIMARY KEY NONCLUSTERED ([ppMatID]),
+);
+GO
+
+ALTER TABLE [dbo].[PP TOOL REQUIREMENTS]
+  ADD
+  CONSTRAINT [CK_PP TOOL REQUIREMENTS] 
+  CHECK
+  (fromDate <= toDate
+and getdate() <= fromDate)
+GO
+-- Create table [dbo].[PRODUCTION-PLAN]
+Print 'Create table [dbo].[PRODUCTION-PLAN]'
+CREATE TABLE [dbo].[PRODUCTION-PLAN](
+  [pPlanVersion] [char](3)  NOT NULL,
+  [ppBeginDate] [date]  NOT NULL,
+  [ppComplDate] [date]  NOT NULL,
+  [bidID] [char](10)  NOT NULL,
+  [previoursPPversion] [char](3)  NULL,
+  [previousBidID] [char](10)  NULL,
+  CONSTRAINT [PK_PRODUCTION-PLAN] PRIMARY KEY NONCLUSTERED ([pPlanVersion], [bidID]),
+);
+GO
+
+ALTER TABLE [dbo].[PRODUCTION-PLAN]
+  ADD
+  CONSTRAINT [CK_PRODUCTION-PLAN_DATE] 
+  CHECK
+  (GETDATE() <= ppBeginDate
+AND ppBeginDate <= ppComplDate)
+GO
+-- Add relationship [PROJECT_CLINET_FK] to table [dbo].[PROJECT]
+Print 'Add relationship [PROJECT_CLINET_FK] to table [dbo].[PROJECT]'
+ALTER TABLE [dbo].[PROJECT]
+  ADD CONSTRAINT [PROJECT_CLINET_FK] FOREIGN KEY ([cID])
+  REFERENCES [dbo].[CLIENT] ([cID]);
+GO
+
+-- Add relationship [PROJECT_PROJECT CONTACT_FK] to table [dbo].[PROJECT]
+Print 'Add relationship [PROJECT_PROJECT CONTACT_FK] to table [dbo].[PROJECT]'
+ALTER TABLE [dbo].[PROJECT]
+  ADD CONSTRAINT [PROJECT_PROJECT CONTACT_FK] FOREIGN KEY ([contactID])
+  REFERENCES [dbo].[PROJECT CONTACT] ([contactID]);
+GO
+
+-- Add relationship [DESIGN BID_PROJECT_FK] to table [dbo].[DESIGN BID]
+Print 'Add relationship [DESIGN BID_PROJECT_FK] to table [dbo].[DESIGN BID]'
+ALTER TABLE [dbo].[DESIGN BID]
+  ADD CONSTRAINT [DESIGN BID_PROJECT_FK] FOREIGN KEY ([projID])
+  REFERENCES [dbo].[PROJECT] ([projID]);
+GO
+
+-- Add relationship [EMP-BID-ROLE_DESIGN BID_FK] to table [dbo].[EMP-BID-ROLE]
+Print 'Add relationship [EMP-BID-ROLE_DESIGN BID_FK] to table [dbo].[EMP-BID-ROLE]'
+ALTER TABLE [dbo].[EMP-BID-ROLE]
+  ADD CONSTRAINT [EMP-BID-ROLE_DESIGN BID_FK] FOREIGN KEY ([bidID])
+  REFERENCES [dbo].[DESIGN BID] ([bidID]);
+GO
+
+-- Add relationship [EMP-BID-ROLE_EMPLOYEE_FK] to table [dbo].[EMP-BID-ROLE]
+Print 'Add relationship [EMP-BID-ROLE_EMPLOYEE_FK] to table [dbo].[EMP-BID-ROLE]'
+ALTER TABLE [dbo].[EMP-BID-ROLE]
+  ADD CONSTRAINT [EMP-BID-ROLE_EMPLOYEE_FK] FOREIGN KEY ([empID])
+  REFERENCES [dbo].[EMPLOYEE] ([empID]);
+GO
+
+-- Add relationship [BID-LABOR_DESIGN BID_FK] to table [dbo].[BID-LABOR]
+Print 'Add relationship [BID-LABOR_DESIGN BID_FK] to table [dbo].[BID-LABOR]'
+ALTER TABLE [dbo].[BID-LABOR]
+  ADD CONSTRAINT [BID-LABOR_DESIGN BID_FK] FOREIGN KEY ([bidID])
+  REFERENCES [dbo].[DESIGN BID] ([bidID]);
+GO
+
+-- Add relationship [BID-LABOR_LABOR-AND-CHARGE_FK] to table [dbo].[BID-LABOR]
+Print 'Add relationship [BID-LABOR_LABOR-AND-CHARGE_FK] to table [dbo].[BID-LABOR]'
+ALTER TABLE [dbo].[BID-LABOR]
+  ADD CONSTRAINT [BID-LABOR_LABOR-AND-CHARGE_FK] FOREIGN KEY ([laborCode])
+  REFERENCES [dbo].[LABOR-AND-CHARGE] ([laborCode]);
+GO
+
+-- Add relationship [BID-MATERIALS_MATERIAL_FK] to table [dbo].[BID-MATERIALS]
+Print 'Add relationship [BID-MATERIALS_MATERIAL_FK] to table [dbo].[BID-MATERIALS]'
+ALTER TABLE [dbo].[BID-MATERIALS]
+  ADD CONSTRAINT [BID-MATERIALS_MATERIAL_FK] FOREIGN KEY ([materialID])
+  REFERENCES [dbo].[MATERIAL] ([materialID]);
+GO
+
+-- Add relationship [BID-MATERIALS_DESIGN BID_FK] to table [dbo].[BID-MATERIALS]
+Print 'Add relationship [BID-MATERIALS_DESIGN BID_FK] to table [dbo].[BID-MATERIALS]'
+ALTER TABLE [dbo].[BID-MATERIALS]
+  ADD CONSTRAINT [BID-MATERIALS_DESIGN BID_FK] FOREIGN KEY ([bidID])
+  REFERENCES [dbo].[DESIGN BID] ([bidID]);
+GO
+
+-- Add relationship [POTTERY_MATERIAL_FK] to table [dbo].[POTTERY]
+Print 'Add relationship [POTTERY_MATERIAL_FK] to table [dbo].[POTTERY]'
+ALTER TABLE [dbo].[POTTERY]
+  ADD CONSTRAINT [POTTERY_MATERIAL_FK] FOREIGN KEY ([materialID])
+  REFERENCES [dbo].[MATERIAL] ([materialID]);
+GO
+
+-- Add relationship [PLANT_MATERIAL_FK] to table [dbo].[PLANT]
+Print 'Add relationship [PLANT_MATERIAL_FK] to table [dbo].[PLANT]'
+ALTER TABLE [dbo].[PLANT]
+  ADD CONSTRAINT [PLANT_MATERIAL_FK] FOREIGN KEY ([materialID])
+  REFERENCES [dbo].[MATERIAL] ([materialID]);
+GO
+
+-- Add relationship [OTHER MATERIAL_MATERIAL_FK] to table [dbo].[OTHER MATERIAL]
+Print 'Add relationship [OTHER MATERIAL_MATERIAL_FK] to table [dbo].[OTHER MATERIAL]'
+ALTER TABLE [dbo].[OTHER MATERIAL]
+  ADD CONSTRAINT [OTHER MATERIAL_MATERIAL_FK] FOREIGN KEY ([materialID])
+  REFERENCES [dbo].[MATERIAL] ([materialID]);
+GO
+
+-- Add relationship [REJECTED_DESIGN BID_FK] to table [dbo].[REJECTED]
+Print 'Add relationship [REJECTED_DESIGN BID_FK] to table [dbo].[REJECTED]'
+ALTER TABLE [dbo].[REJECTED]
+  ADD CONSTRAINT [REJECTED_DESIGN BID_FK] FOREIGN KEY ([bidID])
+  REFERENCES [dbo].[DESIGN BID] ([bidID]);
+GO
+
+-- Add relationship [APPROVED_DESIGN BID_FK] to table [dbo].[APPROVED]
+Print 'Add relationship [APPROVED_DESIGN BID_FK] to table [dbo].[APPROVED]'
+ALTER TABLE [dbo].[APPROVED]
+  ADD CONSTRAINT [APPROVED_DESIGN BID_FK] FOREIGN KEY ([bidID])
+  REFERENCES [dbo].[DESIGN BID] ([bidID]);
+GO
+
+-- Add relationship [PRODUCTION-PLAN_APPROVED_FK] to table [dbo].[PRODUCTION-PLAN]
+Print 'Add relationship [PRODUCTION-PLAN_APPROVED_FK] to table [dbo].[PRODUCTION-PLAN]'
+ALTER TABLE [dbo].[PRODUCTION-PLAN]
+  ADD CONSTRAINT [PRODUCTION-PLAN_APPROVED_FK] FOREIGN KEY ([bidID])
+  REFERENCES [dbo].[APPROVED] ([bidID]);
+GO
+
+-- Add relationship [PRODUCTION-PLAN_PRODUCTION-PLAN_FK] to table [dbo].[PRODUCTION-PLAN]
+Print 'Add relationship [PRODUCTION-PLAN_PRODUCTION-PLAN_FK] to table [dbo].[PRODUCTION-PLAN]'
+ALTER TABLE [dbo].[PRODUCTION-PLAN]
+  ADD CONSTRAINT [PRODUCTION-PLAN_PRODUCTION-PLAN_FK] FOREIGN KEY ([previoursPPversion], [previousBidID])
+  REFERENCES [dbo].[PRODUCTION-PLAN] ([pPlanVersion], [bidID]);
+GO
+
+-- Add relationship [PP TOOL REQUIREMENTS_TOOL_FK] to table [dbo].[PP TOOL REQUIREMENTS]
+Print 'Add relationship [PP TOOL REQUIREMENTS_TOOL_FK] to table [dbo].[PP TOOL REQUIREMENTS]'
+ALTER TABLE [dbo].[PP TOOL REQUIREMENTS]
+  ADD CONSTRAINT [PP TOOL REQUIREMENTS_TOOL_FK] FOREIGN KEY ([toolCode])
+  REFERENCES [dbo].[TOOL] ([toolCode]);
+GO
+
+-- Add relationship [PP MATERIAL SCHEDULE_MATERIAL_FK] to table [dbo].[PP MATERIAL SCHEDULE]
+Print 'Add relationship [PP MATERIAL SCHEDULE_MATERIAL_FK] to table [dbo].[PP MATERIAL SCHEDULE]'
+ALTER TABLE [dbo].[PP MATERIAL SCHEDULE]
+  ADD CONSTRAINT [PP MATERIAL SCHEDULE_MATERIAL_FK] FOREIGN KEY ([materialID])
+  REFERENCES [dbo].[MATERIAL] ([materialID]);
+GO
+
+-- Add relationship [EMPLOYEE-PROJECT-TASK_PROJECT TASKS_FK] to table [dbo].[EMPLOYEE-PROJECT-TASK]
+Print 'Add relationship [EMPLOYEE-PROJECT-TASK_PROJECT TASKS_FK] to table [dbo].[EMPLOYEE-PROJECT-TASK]'
+ALTER TABLE [dbo].[EMPLOYEE-PROJECT-TASK]
+  ADD CONSTRAINT [EMPLOYEE-PROJECT-TASK_PROJECT TASKS_FK] FOREIGN KEY ([taskID])
+  REFERENCES [dbo].[PROJECT TASKS] ([taskID]);
+GO
+
+-- Add relationship [EMPLOYEE-PROJECT-TASK_PROJECT TEAM MEMBER_FK] to table [dbo].[EMPLOYEE-PROJECT-TASK]
+Print 'Add relationship [EMPLOYEE-PROJECT-TASK_PROJECT TEAM MEMBER_FK] to table [dbo].[EMPLOYEE-PROJECT-TASK]'
+ALTER TABLE [dbo].[EMPLOYEE-PROJECT-TASK]
+  ADD CONSTRAINT [EMPLOYEE-PROJECT-TASK_PROJECT TEAM MEMBER_FK] FOREIGN KEY ([projTeamAssignID])
+  REFERENCES [dbo].[PROJECT TEAM MEMBER] ([projTeamAssignID]);
+GO
+
+-- Add relationship [PROJECT TEAM MEMBER_LABOR-AND-CHARGE_FK] to table [dbo].[PROJECT TEAM MEMBER]
+Print 'Add relationship [PROJECT TEAM MEMBER_LABOR-AND-CHARGE_FK] to table [dbo].[PROJECT TEAM MEMBER]'
+ALTER TABLE [dbo].[PROJECT TEAM MEMBER]
+  ADD CONSTRAINT [PROJECT TEAM MEMBER_LABOR-AND-CHARGE_FK] FOREIGN KEY ([laborCode])
+  REFERENCES [dbo].[LABOR-AND-CHARGE] ([laborCode]);
+GO
+
+-- Add relationship [MATERIAL-USED_PP MATERIAL SCHEDULE_FK] to table [dbo].[MATERIAL-USED]
+Print 'Add relationship [MATERIAL-USED_PP MATERIAL SCHEDULE_FK] to table [dbo].[MATERIAL-USED]'
+ALTER TABLE [dbo].[MATERIAL-USED]
+  ADD CONSTRAINT [MATERIAL-USED_PP MATERIAL SCHEDULE_FK] FOREIGN KEY ([materialScheduleID])
+  REFERENCES [dbo].[PP MATERIAL SCHEDULE] ([materialScheduleID]);
+GO
+
+-- Add relationship [PROJECT TEAM MEMBER_EMPLOYEE_FK] to table [dbo].[PROJECT TEAM MEMBER]
+Print 'Add relationship [PROJECT TEAM MEMBER_EMPLOYEE_FK] to table [dbo].[PROJECT TEAM MEMBER]'
+ALTER TABLE [dbo].[PROJECT TEAM MEMBER]
+  ADD CONSTRAINT [PROJECT TEAM MEMBER_EMPLOYEE_FK] FOREIGN KEY ([empID])
+  REFERENCES [dbo].[EMPLOYEE] ([empID]);
+GO
+
+-- Add relationship [PROJECT CONTACT_CLIENT_FK] to table [dbo].[PROJECT CONTACT]
+Print 'Add relationship [PROJECT CONTACT_CLIENT_FK] to table [dbo].[PROJECT CONTACT]'
+ALTER TABLE [dbo].[PROJECT CONTACT]
+  ADD CONSTRAINT [PROJECT CONTACT_CLIENT_FK] FOREIGN KEY ([cID])
+  REFERENCES [dbo].[CLIENT] ([cID]);
+GO
+
+-- Add relationship [DESIGN BUDGET_PROJECT_FK] to table [dbo].[DESIGN BUDGET]
+Print 'Add relationship [DESIGN BUDGET_PROJECT_FK] to table [dbo].[DESIGN BUDGET]'
+ALTER TABLE [dbo].[DESIGN BUDGET]
+  ADD CONSTRAINT [DESIGN BUDGET_PROJECT_FK] FOREIGN KEY ([projID])
+  REFERENCES [dbo].[PROJECT] ([projID]);
+GO
+
+-- Add relationship [DESIGN BUDGET_EMPLOYEE_FK] to table [dbo].[DESIGN BUDGET]
+Print 'Add relationship [DESIGN BUDGET_EMPLOYEE_FK] to table [dbo].[DESIGN BUDGET]'
+ALTER TABLE [dbo].[DESIGN BUDGET]
+  ADD CONSTRAINT [DESIGN BUDGET_EMPLOYEE_FK] FOREIGN KEY ([empID])
+  REFERENCES [dbo].[EMPLOYEE] ([empID]);
+GO
+
+-- Add relationship [DESIGN BUDGET_LABOR-AND-CHARGE_FK] to table [dbo].[DESIGN BUDGET]
+Print 'Add relationship [DESIGN BUDGET_LABOR-AND-CHARGE_FK] to table [dbo].[DESIGN BUDGET]'
+ALTER TABLE [dbo].[DESIGN BUDGET]
+  ADD CONSTRAINT [DESIGN BUDGET_LABOR-AND-CHARGE_FK] FOREIGN KEY ([laborCode])
+  REFERENCES [dbo].[LABOR-AND-CHARGE] ([laborCode]);
+GO
+
+-- Add relationship [DESIGNER-TASK_DESIGN BUDGET_FK] to table [dbo].[DESIGNER-TASK]
+Print 'Add relationship [DESIGNER-TASK_DESIGN BUDGET_FK] to table [dbo].[DESIGNER-TASK]'
+ALTER TABLE [dbo].[DESIGNER-TASK]
+  ADD CONSTRAINT [DESIGNER-TASK_DESIGN BUDGET_FK] FOREIGN KEY ([designBudgetID])
+  REFERENCES [dbo].[DESIGN BUDGET] ([designBudgetID]);
+GO
+
+-- Add relationship [DESIGNER-TASK_DESIGN TASKS_FK] to table [dbo].[DESIGNER-TASK]
+Print 'Add relationship [DESIGNER-TASK_DESIGN TASKS_FK] to table [dbo].[DESIGNER-TASK]'
+ALTER TABLE [dbo].[DESIGNER-TASK]
+  ADD CONSTRAINT [DESIGNER-TASK_DESIGN TASKS_FK] FOREIGN KEY ([designTaskID])
+  REFERENCES [dbo].[DESIGN TASKS] ([designTaskID]);
+GO
+
+-- Add relationship [DESIGNER-TASK-PERFORMED_DESIGNER-TASK_FK] to table [dbo].[DESIGNER-TASK-PERFORMED]
+Print 'Add relationship [DESIGNER-TASK-PERFORMED_DESIGNER-TASK_FK] to table [dbo].[DESIGNER-TASK-PERFORMED]'
+ALTER TABLE [dbo].[DESIGNER-TASK-PERFORMED]
+  ADD CONSTRAINT [DESIGNER-TASK-PERFORMED_DESIGNER-TASK_FK] FOREIGN KEY ([designTaskID], [designBudgetID])
+  REFERENCES [dbo].[DESIGNER-TASK] ([designTaskID], [designBudgetID]);
+GO
+
+-- Add relationship [PP TOOL REQUIREMENTS_PRODUCTION-PLAN_FK] to table [dbo].[PP TOOL REQUIREMENTS]
+Print 'Add relationship [PP TOOL REQUIREMENTS_PRODUCTION-PLAN_FK] to table [dbo].[PP TOOL REQUIREMENTS]'
+ALTER TABLE [dbo].[PP TOOL REQUIREMENTS]
+  ADD CONSTRAINT [PP TOOL REQUIREMENTS_PRODUCTION-PLAN_FK] FOREIGN KEY ([pPlanVersion], [bidID])
+  REFERENCES [dbo].[PRODUCTION-PLAN] ([pPlanVersion], [bidID]);
+GO
+
+-- Add relationship [PP MATERIAL SCHEDULE_PRODUCTION-PLAN_FK] to table [dbo].[PP MATERIAL SCHEDULE]
+Print 'Add relationship [PP MATERIAL SCHEDULE_PRODUCTION-PLAN_FK] to table [dbo].[PP MATERIAL SCHEDULE]'
+ALTER TABLE [dbo].[PP MATERIAL SCHEDULE]
+  ADD CONSTRAINT [PP MATERIAL SCHEDULE_PRODUCTION-PLAN_FK] FOREIGN KEY ([pPlanVersion], [bidID])
+  REFERENCES [dbo].[PRODUCTION-PLAN] ([pPlanVersion], [bidID]);
+GO
+
+-- Add relationship [PROJECT TEAM MEMBER_PRODUCTION-PLAN_FK] to table [dbo].[PROJECT TEAM MEMBER]
+Print 'Add relationship [PROJECT TEAM MEMBER_PRODUCTION-PLAN_FK] to table [dbo].[PROJECT TEAM MEMBER]'
+ALTER TABLE [dbo].[PROJECT TEAM MEMBER]
+  ADD CONSTRAINT [PROJECT TEAM MEMBER_PRODUCTION-PLAN_FK] FOREIGN KEY ([pPlanVersion], [bidID])
+  REFERENCES [dbo].[PRODUCTION-PLAN] ([pPlanVersion], [bidID]);
+GO
+
+-- Add relationship [EMPLOYEE-PROJECT-TASK-PERFORMED_EMPLOYEE-PROJECT-TASK_FK] to table [dbo].[EMPLOYEE-PROJECT-TASK-PERFORMED]
+Print 'Add relationship [EMPLOYEE-PROJECT-TASK-PERFORMED_EMPLOYEE-PROJECT-TASK_FK] to table [dbo].[EMPLOYEE-PROJECT-TASK-PERFORMED]'
+ALTER TABLE [dbo].[EMPLOYEE-PROJECT-TASK-PERFORMED]
+  ADD CONSTRAINT [EMPLOYEE-PROJECT-TASK-PERFORMED_EMPLOYEE-PROJECT-TASK_FK] FOREIGN KEY ([taskID], [projTeamAssignID])
+  REFERENCES [dbo].[EMPLOYEE-PROJECT-TASK] ([taskID], [projTeamAssignID]);
+GO
+--PAS-1 Material Requirements table function
+CREATE FUNCTION [dbo].[udtf_MaterialRequirements] (@bidID CHAR(10))
+RETURNS TABLE
+AS RETURN(
+		SELECT BM.QtyOnBid AS [Qnty],
+			M.description AS [Desc],
+			CONCAT(PL.size, ' ', PL.sizeUnits) AS [Size],
+			BM.UnitPriceForBid AS [Unit Price],
+			BM.QtyOnBid * BM.UnitPriceForBid AS [Extended Price]
+		FROM [BID-MATERIALS] BM JOIN MATERIAL M
+		ON BM.materialID = M.materialID
+		JOIN PLANT PL
+		ON M.materialID = PL.materialID
+		WHERE BM.bidID = @bidID
+		UNION
+		SELECT BM.QtyOnBid AS [Qnty],
+			M.description AS [Desc],
+			CONCAT(PO.size, ' ', PO.sizeUnits) AS [Size],
+			BM.UnitPriceForBid AS [Unit Price],
+			BM.QtyOnBid * BM.UnitPriceForBid AS [Extended Price]
+		FROM [BID-MATERIALS] BM JOIN MATERIAL M
+		ON BM.materialID = M.materialID
+		JOIN POTTERY PO
+		ON M.materialID = PO.materialID
+		WHERE BM.bidID = @bidID
+		UNION
+		SELECT BM.QtyOnBid AS [Qnty],
+			M.description AS [Desc],
+			CONCAT(OM.size, ' ', OM.sizeUnits) AS [Size],
+			BM.UnitPriceForBid AS [Unit Price],
+			BM.QtyOnBid * BM.UnitPriceForBid AS [Extended Price]
+		FROM [BID-MATERIALS] BM JOIN MATERIAL M
+		ON BM.materialID = M.materialID
+		JOIN [OTHER MATERIAL] OM
+		ON M.materialID = OM.materialID
+		WHERE BM.bidID = @bidID
+)
+
+GO
+--PAS-1 Labor Requirements table function
+CREATE FUNCTION [dbo].[udtf_LaborRequirements] (@bidID CHAR(10))
+RETURNS TABLE
+AS 
+RETURN(
+		SELECT BL.hoursOnBid AS [Hours], 
+				LC.laborDescription AS [Desc], 
+				BL.chargePerHourOnBid AS [Unit Price],
+				(BL.hoursOnBid * BL.chargePerHourOnBid) AS [Extended Price]
+		FROM [BID-LABOR] BL JOIN [LABOR-AND-CHARGE] LC
+		ON BL.laborCode = LC.laborCode
+		WHERE BL.bidID = @bidID
+)
+GO
+--PAS-1 Scalar function to calculate the sum of extended materials price of a selected bid
+CREATE FUNCTION [dbo].[udsf_ExtMaterialPrice] (@bidId CHAR(10))
+RETURNS SMALLMONEY
+AS 
+	BEGIN
+		DECLARE @extMaterialPrice SMALLMONEY;
+		SET @extMaterialPrice = (
+									SELECT SUM(BM.QtyOnBid  * BM.UnitPriceForBid)
+									FROM [BID-MATERIALS] BM JOIN [DESIGN BID] DB
+									ON BM.bidID = DB.bidID
+									WHERE DB.bidID = @bidId
+									);
+		IF @extMaterialPrice IS NULL
+		SET @extMaterialPrice  = 0;
+		RETURN @extMaterialPrice;
+	END
+GO
+--PAS-1 Scalar function to calculate the sum of extended labor price of a selected bid
+CREATE FUNCTION [dbo].[udsf_ExtLaborPrice] (@bidID CHAR(10))
+RETURNS SMALLMONEY
+AS BEGIN
+	DECLARE @extLaborPrice SMALLMONEY;
+	SET @extLaborPrice = (
+							SELECT SUM(BL.chargePerHourOnBid * BL.hoursOnBid) AS [ExtLaborPrice]
+							FROM [BID-LABOR] BL JOIN [DESIGN BID] DB
+							ON BL.bidID = DB.bidID
+							WHERE DB.bidID = @bidID
+							);
+	IF @extLaborPrice IS NULL
+	SET @extLaborPrice = 0
+	RETURN @extLaborPrice;
+	END
+GO
+--PAS-1  Scalar function to calculate the sum of all the extended price for materials and labor for a selected bid
+CREATE FUNCTION [dbo].[utsd_bidAmount] (@bidId CHAR(10))
+RETURNS SMALLMONEY
+AS
+	BEGIN
+		DECLARE @bidAmount SMALLMONEY;
+		DECLARE @extLaborPrice SMALLMONEY;
+		DECLARE @extMaterialPrice SMALLMONEY;
+		SET @extLaborPrice = (
+								SELECT SUM(BL.chargePerHourOnBid * BL.hoursOnBid) AS [ExtLaborPrice]
+								FROM [BID-LABOR] BL JOIN [DESIGN BID] DB
+								ON BL.bidID = DB.bidID
+								WHERE DB.bidID = @bidId
+								);
+		IF @extLaborPrice IS NULL
+		SET @extLaborPrice = 0
+		RETURN @extLaborPrice;
+		SET @extMaterialPrice = (
+									SELECT SUM(BM.QtyOnBid  * BM.UnitPriceForBid)
+									FROM [BID-MATERIALS] BM JOIN [DESIGN BID] DB
+									ON BM.bidID = DB.bidID
+									WHERE DB.bidID = @bidId
+										);
+			IF @extMaterialPrice IS NULL
+			SET @extMaterialPrice  = 0;
+			RETURN @extMaterialPrice;
+		SET @bidAmount = @extLaborPrice + @extMaterialPrice;
+		RETURN @bidAmount;
+	END
+
+GO
+--PAS-2 Production Plan Materials Requirements Table
+CREATE FUNCTION [dbo].[udtf_ProductionPlanMaterialRequirements] (@pPlanVersion char(10), @bidID char(10))--function to generate PAS-2 material requirement with calculated prices
+RETURNS TABLE
+AS 
+RETURN (
+		--Table for Plants
+		SELECT MS.qtyScheduled AS [Qnty],
+			MS.materialID AS [Code/Desc],
+			CONCAT(PL.size, PL.sizeUnits) AS [Size],
+			PL.unitPrice AS [Net/Unit],
+			(PL.unitPrice * MS.qtyScheduled) AS [EXT.Cost],
+			MS.dateTimeDelivery AS [Deliver],
+			MS.dateInstall AS [Install]
+		FROM [PP MATERIAL SCHEDULE] MS
+		JOIN PLANT PL
+		ON MS.materialID = PL.materialID
+		WHERE MS.pPlanVersion = @pPlanVersion
+		AND MS.bidID = @bidID
+		UNION --Union with table for Pottery
+		SELECT MS.qtyScheduled AS [Qnty],
+			MS.materialID AS [Code/Desc],
+			CONCAT(PO.size, PO.sizeUnits) AS [Size],
+			PO.unitPrice AS [Net/Unit],
+			(PO.unitPrice * MS.qtyScheduled) AS [EXT.Cost],
+			MS.dateTimeDelivery AS [Deliver],
+			MS.dateInstall AS [Install]
+		FROM [PP MATERIAL SCHEDULE] MS
+		JOIN POTTERY PO
+		ON MS.materialID = PO.materialID
+		WHERE MS.pPlanVersion = @pPlanVersion
+		AND MS.bidID = @bidID
+		UNION --Union table for Other Materials
+		SELECT MS.qtyScheduled AS [Qnty],
+			MS.materialID AS [Code/Desc],
+			CONCAT(OM.size, OM.sizeUnits) AS [Size],
+			OM.unitPrice AS [Net/Unit],
+			(OM.unitPrice * MS.qtyScheduled) AS [EXT.Cost],
+			MS.dateTimeDelivery AS [Deliver],
+			MS.dateInstall AS [Install]
+		FROM [PP MATERIAL SCHEDULE] MS
+		JOIN [OTHER MATERIAL] OM
+		ON MS.materialID = OM.materialID
+		WHERE MS.pPlanVersion = @pPlanVersion
+		AND MS.bidID = @bidID
+		)
+GO
+--PAS-2 Production Plan Tools Requirements table
+CREATE FUNCTION [dbo].[udtf_PPtoolRequirements] (@pPlanVersion CHAR(10), @bidID CHAR(10))-- Table function that generates Production Plan tools requirment for a specific production plan
+RETURNS TABLE
+AS 
+RETURN(
+		SELECT TR.qtyDelivered AS [Qnty],
+			T.toolCode [Code/Desc],
+			TR.fromDate [StartDate],
+			TR.toDate [EndDate]
+		FROM [PP TOOL REQUIREMENTS] TR
+		JOIN TOOL T
+		ON TR.toolCode = T.toolCode
+		WHERE TR.pPlanVersion = @pPlanVersion
+		AND TR.bidID = @bidID
+		)
+GO
+--PAS-2 Production Plan Labor Requirements table
+CREATE FUNCTION [dbo].[udtf_PPLaborRequirements] (@pPlanVersion CHAR(10), @bidID CHAR(10))
+RETURNS TABLE
+AS 
+RETURN(
+		SELECT CONCAT(E.empfName, E.empMName, E.empLName) AS [Employee],
+			TM.laborCode AS [Desc],	
+			PT.hoursCharged AS [Hours],
+			LC.listedChargePerHour AS [Cost/Hr],
+			(PT.hoursCharged * LC.listedChargePerHour) AS [Ext.Cost],
+			PT.dateOfCompletion AS [Time],
+			PT.taskDescription AS [TASKS]	
+		FROM [EMPLOYEE-PROJECT-TASK] EPT
+		JOIN [PROJECT TASKS] PT
+		ON EPT.taskID = PT.taskID
+		JOIN [PROJECT TEAM MEMBER] TM
+		ON EPT.projTeamAssignID = TM.projTeamAssignID
+		JOIN EMPLOYEE E 
+		ON TM.empID = E.empID
+		JOIN [LABOR-AND-CHARGE] LC
+		ON TM.laborCode = LC.laborCode
+		WHERE TM.pPlanVersion = @pPlanVersion
+		AND TM.bidID = @bidID
+			)
+GO
+--PAS-2 Scalar function to calculate the ext costs for Bid Process
+CREATE FUNCTION [dbo].[udsf_PPBidProcess] (@bidID CHAR (10))
+RETURNS SMALLMONEY
+AS BEGIN
+		DECLARE @PPBidProcess SMALLMONEY;
+		SET @PPBidProcess = (
+								SELECT 
+									SUM(DT.hoursCharged * LC.listedChargePerHour) AS [Est.Cost for BidProcess]
+								FROM [DESIGNER-TASK] DNT
+								JOIN [DESIGN TASKS] DT
+								ON DNT.designTaskID = DT.designTaskID
+								JOIN [DESIGN BUDGET] DB
+								ON DNT.designBudgetID = DB.designBudgetID
+								JOIN [LABOR-AND-CHARGE] LC
+								ON DB.laborCode = LC.laborCode
+								JOIN [DESIGN BID] DBI
+								ON DB.projID = DBI.projID
+								WHERE DBI.bidID = @bidID
+							
+		)
+		IF @PPBidProcess IS NULL
+		SET @PPBidProcess = 0;
+		RETURN @PPBidProcess;
+	END
+GO
+--PAS-2 Scalar function to calculate the ext cost for designer (production)
+CREATE FUNCTION [dbo].[udsf_PPDesignerExtCost] (@bidID CHAR (10), @pPlanVersion CHAR(10))
+RETURNS SMALLMONEY
+AS BEGIN
+		DECLARE @udsf_PPDesignerExtCost SMALLMONEY;
+		SET @udsf_PPDesignerExtCost = (
+								SELECT SUM(PT.hoursCharged * LC.listedChargePerHour) AS [Ext.Cost for Design Production]
+								FROM [EMPLOYEE-PROJECT-TASK] EPT
+								JOIN [PROJECT TASKS] PT
+								ON EPT.taskID = PT.taskID
+								JOIN [PROJECT TEAM MEMBER] TM
+								ON EPT.projTeamAssignID = TM.projTeamAssignID
+								JOIN [LABOR-AND-CHARGE] LC
+								ON TM.laborCode = LC.laborCode
+								WHERE LC.laborCode = 'Designer'
+								AND (TM.bidID = @bidID AND TM.pPlanVersion = @pPlanVersion)
+		)
+		IF @udsf_PPDesignerExtCost IS NULL
+		SET @udsf_PPDesignerExtCost = 0
+		RETURN @udsf_PPDesignerExtCost;
+	END
+GO
+--PAS-2 Scalar function to calculate the ext costs for labor workers (production)
+CREATE FUNCTION [dbo].[udsf_PPLaborExtCosts] (@bidID CHAR (10), @pPlanVersion CHAR(10))-- FUNCTION return ext production labor costs during production
+RETURNS SMALLMONEY
+AS BEGIN
+		DECLARE @udsf_PPLaborExtCosts SMALLMONEY;
+		SET @udsf_PPLaborExtCosts = (
+								SELECT SUM(PT.hoursCharged * LC.listedChargePerHour) AS [Ext.Cost for Production Production]
+								FROM [EMPLOYEE-PROJECT-TASK] EPT
+								JOIN [PROJECT TASKS] PT
+								ON EPT.taskID = PT.taskID
+								JOIN [PROJECT TEAM MEMBER] TM
+								ON EPT.projTeamAssignID = TM.projTeamAssignID
+								JOIN [LABOR-AND-CHARGE] LC
+								ON TM.laborCode = LC.laborCode
+								WHERE LC.laborCode = 'Production'
+								AND (TM.bidID = @bidID AND TM.pPlanVersion = @pPlanVersion)
+		)
+		IF @udsf_PPLaborExtCosts IS NULL
+	SET @udsf_PPLaborExtCosts = 0;
+
+		RETURN @udsf_PPLaborExtCosts;
+	END
+GO
+--PAS-2 Scalar function to calculate the ext cost for materials
+CREATE FUNCTION [dbo].[udsf_ExtMaterialCosts] (@pPlanVersion CHAR(10), @bidID CHAR(10))
+RETURNS SMALLMONEY
+AS BEGIN
+	DECLARE @ExtMaterialCosts SMALLMONEY;
+	SET @ExtMaterialCosts = (
+								SELECT SUM(T.qtyScheduled * T.unitPrice) AS Total
+								FROM(
+									SELECT MS.qtyScheduled, PL.unitPrice
+									FROM [PP MATERIAL SCHEDULE] MS
+									JOIN PLANT PL
+									ON MS.materialID = PL.materialID
+									WHERE MS.pPlanVersion = @pPlanVersion
+									AND MS.bidID = @bidID
+									UNION
+									SELECT MS.qtyScheduled, PO.unitPrice
+									FROM [PP MATERIAL SCHEDULE] MS
+									JOIN POTTERY PO
+									ON MS.materialID = PO.materialID
+									WHERE MS.pPlanVersion = @pPlanVersion
+									AND MS.bidID = @bidID
+									UNION
+									SELECT MS.qtyScheduled, OM.unitPrice
+									FROM [PP MATERIAL SCHEDULE] MS
+									JOIN [OTHER MATERIAL] OM
+									ON MS.materialID = OM.materialID
+									WHERE MS.pPlanVersion = @pPlanVersion
+									AND MS.bidID = @bidID) AS T
+	)
+	IF @ExtMaterialCosts IS NULL
+	SET @ExtMaterialCosts = 0;
+	RETURN @ExtMaterialCosts;
+	END
+GO
+	--PAS-2 Scalar function to calculate production plan total cost
+CREATE FUNCTION [dbo].[udsf_ProductionTotal] (@bidID char(10), @pPlanVersion CHAR(10))--PAS-2 TotalProduction Costs
+RETURNS SMALLMONEY
+AS BEGIN
+	DECLARE @bidProcess SMALLMONEY;
+	DECLARE @productionDesign SMALLMONEY;
+	DECLARE @labor SMALLMONEY;
+	DECLARE @materials SMALLMONEY;
+	DECLARE @productionTotal SMALLMONEY;
+	SET @bidProcess = (SELECT 
+									SUM(DT.hoursCharged * LC.listedChargePerHour) AS [Est.Cost for BidProcess]
+								FROM [DESIGNER-TASK] DNT
+								JOIN [DESIGN TASKS] DT
+								ON DNT.designTaskID = DT.designTaskID
+								JOIN [DESIGN BUDGET] DB
+								ON DNT.designBudgetID = DB.designBudgetID
+								JOIN [LABOR-AND-CHARGE] LC
+								ON DB.laborCode = LC.laborCode
+								JOIN [DESIGN BID] DBI
+								ON DB.projID = DBI.projID
+								WHERE DBI.bidID = @bidID
+							
+		)
+		IF @bidProcess IS NULL
+		SET @bidProcess = 0;
+		RETURN @bidProcess;
+	SET @productionDesign = (SELECT SUM(PT.hoursCharged * LC.listedChargePerHour) AS [Ext.Cost for Design Production]
+								FROM [EMPLOYEE-PROJECT-TASK] EPT
+								JOIN [PROJECT TASKS] PT
+								ON EPT.taskID = PT.taskID
+								JOIN [PROJECT TEAM MEMBER] TM
+								ON EPT.projTeamAssignID = TM.projTeamAssignID
+								JOIN [LABOR-AND-CHARGE] LC
+								ON TM.laborCode = LC.laborCode
+								WHERE LC.laborCode = 'Desiner'
+								AND (TM.bidID = @bidID AND TM.pPlanVersion = @pPlanVersion)
+		)
+		IF @productionDesign IS NULL
+		SET @productionDesign = 0;
+		SET @labor = (
+						SELECT SUM(PT.hoursCharged * LC.listedChargePerHour) AS [Ext.Cost for Production Production]
+								FROM [EMPLOYEE-PROJECT-TASK] EPT
+								JOIN [PROJECT TASKS] PT
+								ON EPT.taskID = PT.taskID
+								JOIN [PROJECT TEAM MEMBER] TM
+								ON EPT.projTeamAssignID = TM.projTeamAssignID
+								JOIN [LABOR-AND-CHARGE] LC
+								ON TM.laborCode = LC.laborCode
+								WHERE LC.laborCode = 'Production'
+								AND (TM.bidID = @bidID AND TM.pPlanVersion = @pPlanVersion)
+		)
+		IF @labor IS NULL
+	SET @labor = 0;
+		SET @materials = (
+							SELECT SUM(T.qtyScheduled * T.unitPrice) AS Total
+							FROM(
+									SELECT MS.qtyScheduled, PL.unitPrice
+									FROM [PP MATERIAL SCHEDULE] MS
+									JOIN PLANT PL
+									ON MS.materialID = PL.materialID
+									WHERE MS.pPlanVersion = @pPlanVersion
+									AND MS.bidID = @bidID
+									UNION
+									SELECT MS.qtyScheduled, PO.unitPrice
+									FROM [PP MATERIAL SCHEDULE] MS
+									JOIN POTTERY PO
+									ON MS.materialID = PO.materialID
+									WHERE MS.pPlanVersion = @pPlanVersion
+									AND MS.bidID = @bidID
+									UNION
+									SELECT MS.qtyScheduled, OM.unitPrice
+									FROM [PP MATERIAL SCHEDULE] MS
+									JOIN [OTHER MATERIAL] OM
+									ON MS.materialID = OM.materialID
+									WHERE MS.pPlanVersion = @pPlanVersion
+									AND MS.bidID = @bidID) AS T
+	)
+	IF @materials IS NULL
+	SET @materials = 0;
+	SET @productionTotal = @bidProcess + @productionDesign + @labor +@materials;
+	RETURN @productionTotal;
+
+END
+GO
+--PAS-3 Design Budget task details
+CREATE FUNCTION [dbo].[udtf_DesignBudgetTasks] (@projID CHAR(10))
+RETURNS TABLE
+AS
+RETURN(
+		SELECT d.taskDescription AS [TASK],
+			D.dateByCompletion AS [Date],
+			D.hoursCharged AS [Hours]
+		FROM [DESIGN TASKS] D JOIN [DESIGNER-TASK] DT
+		ON D.designTaskID = DT.designTaskID
+		JOIN [DESIGN BUDGET] DB
+		ON DT.designBudgetID = DB.designBudgetID
+		JOIN PROJECT P
+		ON DB.projID = P.projID
+		WHERE p.projID = @projID
+		);
+GO
+
+--PAS-4 ProductionDailyWorkReport function for materials used
+CREATE FUNCTION udtf_ProDailyWorkReportForMaterialsUsed (@pPlanVersion CHAR(10), @bidID CHAR(10), @dateUsed DATE )
+RETURNS TABLE
+AS RETURN(
+			SELECT MS.materialID AS [Code],
+				MU.qty AS [Qnty],
+				PL.unitPrice AS [Unit Cost],
+				(PL.unitPrice * MU.qty) AS [Ext.Cost]
+			FROM [MATERIAL-USED] MU
+			JOIN [PP MATERIAL SCHEDULE] MS
+			ON MU.materialScheduleID = MS.materialScheduleID
+			JOIN PLANT PL
+			ON MS.materialID = PL.materialID
+			WHERE (MS.pPlanVersion = @pPlanVersion AND MS.bidID = @bidID)
+			AND MU.date = @dateUsed
+			UNION
+			SELECT MS.materialID AS [Code],
+				MU.qty AS [Qnty],
+				PO.unitPrice AS [Unit Cost],
+				(PO.unitPrice * MU.qty) AS [Ext.Cost]
+			FROM [MATERIAL-USED] MU
+			JOIN [PP MATERIAL SCHEDULE] MS
+			ON MU.materialScheduleID = MS.materialScheduleID
+			JOIN POTTERY PO
+			ON MS.materialID = PO.materialID
+			WHERE (MS.pPlanVersion = @pPlanVersion AND MS.bidID = @bidID)
+			AND MU.date = @dateUsed
+			UNION
+			SELECT MS.materialID AS [Code],
+				MU.qty AS [Qnty],
+				OM.unitPrice AS [Unit Cost],
+				(OM.unitPrice * MU.qty) AS [Ext.Cost]
+			FROM [MATERIAL-USED] MU
+			JOIN [PP MATERIAL SCHEDULE] MS
+			ON MU.materialScheduleID = MS.materialScheduleID
+			JOIN [OTHER MATERIAL] OM
+			ON MS.materialID = OM.materialID
+			WHERE (MS.pPlanVersion = @pPlanVersion AND MS.bidID = @bidID)
+			AND MU.date = @dateUsed)
+GO
+--PAS-4 ProductionDailyWorkReport function for labor performed
+CREATE FUNCTION [dbo].[udtf_LaborPerformedDailyWorkReport] (@datePerformed date, @bidId char(10), @pPlanVersion char(10))
+RETURNS TABLE
+AS 
+RETURN(
+		SELECT 
+			CONCAT(E.empfName, ' ', E.empMName, ' ', E.empLName) AS [Worker],
+			PT.hoursCharged AS [Hours],
+			LC.listedChargePerHour AS [Cost/Hr],
+			(LC.listedChargePerHour * PT.hoursCharged) AS [Ext. Cost],
+			PT.taskDescription AS [Desc]
+		FROM [EMPLOYEE-PROJECT-TASK-PERFORMED] TP
+		JOIN [PROJECT TASKS] PT
+		ON TP.taskID = PT.taskID
+		JOIN [PROJECT TEAM MEMBER] TM
+		ON TP.projTeamAssignID = TM.projTeamAssignID
+		JOIN EMPLOYEE E
+		ON TM.empID = E.empID
+		JOIN [LABOR-AND-CHARGE] LC
+		ON TM.laborCode = LC.laborCode
+		WHERE LC.laborCode = 'Labor'--to filter the tasks performed by the production workers
+		AND TP.date = @datePerformed
+		AND TM.bidID = @bidID
+		AND TM.pPlanVersion = @pPlanVersion
+)
+GO
+
+--PAS-5 Table function generates the Designer Daily Work Report
+CREATE FUNCTION [dbo].[udtf_DesignerDailyWR] (@empID char(10), @date date)
+RETURNS TABLE 
+AS RETURN(--select the tasks performed by a selected designer on a selected day during the production stage
+			SELECT P.date, CONCAT(E.empfName, ' ', E.empMName, ' ', E.empLName) AS DesignerName,
+				P1.projectName, 'P' AS [Stage],
+				T.hoursCharged AS [Hours],
+				T.taskDescription AS [Task]
+			FROM [EMPLOYEE-PROJECT-TASK-PERFORMED] P JOIN [PROJECT TASKS] T
+			ON P.taskID = T.taskID
+			JOIN [PROJECT TEAM MEMBER] M
+			ON P.projTeamAssignID = M.projTeamAssignID
+			JOIN EMPLOYEE E
+			ON M.empID = E.empID
+			JOIN [DESIGN BID] B 
+			ON M.bidID = B.bidID
+			JOIN PROJECT P1
+			ON B.projID = P1.projID
+			WHERE M.empID = @empID
+			AND P.date = @date
+			UNION -- union the tables
+			----select the tasks performed by a selected designer on a selected day during the bid stage
+			SELECT DP.date, CONCAT(E.empfName, ' ', E.empMName, ' ', E.empLName) AS DesignerName,
+				P1.projectName, 'B' AS [Stage],
+				DT.hoursCharged AS [Hours],
+				DT.taskDescription AS [Task]
+			FROM [DESIGNER-TASK-PERFORMED] DP JOIN [DESIGN TASKS] DT
+			ON DP.designTaskID = DT.designTaskID
+			JOIN [DESIGN BUDGET] DB 
+			ON DP.designBudgetID = DB.designBudgetID
+			JOIN EMPLOYEE E
+			ON DB.empID = E.empID
+			JOIN PROJECT P1
+			ON DB.projID = P1.projID
+			WHERE DP.date = @date
+			AND DB.empID = @empID
+)
+GO
